@@ -315,6 +315,19 @@ async function main() {
   await a.getByText('Challenged answer · Riya').waitFor();
   log('refreshing on an open question restores it');
 
+  // home button: leaves the screen, not the session; the home page offers the way back
+  await a.getByRole('link', { name: 'Home page' }).click();
+  await a.waitForURL(BASE + '/');
+  const mine = a.getByRole('region', { name: 'Your sessions' });
+  await mine.getByText('Friday quiz').waitFor();
+  await mine.getByText('you are Sam').waitFor();
+  await a.getByRole('link', { name: 'You’re in · open' }).waitFor(); // not offered "Ask to join" for a session they are in
+  await shot(a, '11b-home-your-sessions');
+  await mine.getByRole('link', { name: 'Back to session' }).click();
+  await a.getByRole('button', { name: 'Post answer' }).waitFor(); // straight back in, no re-join
+  await host.getByText('3/3').waitFor(); // and shown as online again for the others
+  log('home button goes to the home page; "Back to session" returns without re-joining');
+
   // demo mode: seeded session, identity links per window, sample photos
   const home = await open('demo-home', { width: 900, height: 900 });
   await home.goto(BASE);

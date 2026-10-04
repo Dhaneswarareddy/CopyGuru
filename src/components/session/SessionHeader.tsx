@@ -1,4 +1,5 @@
 'use client';
+import Link from 'next/link';
 import { useState } from 'react';
 import { ChatButton } from '@/components/chat/ChatButton';
 import { useChat } from '@/components/chat/ChatProvider';
@@ -36,6 +37,14 @@ export function SessionHeader() {
     <header className="sticky top-0 z-30 border-b border-slate-200 bg-white/90 backdrop-blur">
       <div className="brand-bar h-1" aria-hidden="true" />
       <div className="mx-auto flex max-w-3xl items-center gap-3 px-4 pt-3">
+        <Link
+          href="/"
+          aria-label="Home page"
+          title="Home page (you stay in this session and can come back)"
+          className="-ml-1 shrink-0 rounded-lg p-2 text-lg leading-none hover:bg-slate-100"
+        >
+          <span aria-hidden="true">🏠</span>
+        </Link>
         <div className="min-w-0 flex-1">
           <h1 className="truncate text-base font-semibold text-slate-900">{session.name}</h1>
           <div className="mt-0.5 flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-slate-500">

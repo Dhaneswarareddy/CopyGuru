@@ -1,10 +1,12 @@
 'use client';
+import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useCallback, useEffect, useState } from 'react';
 import { ApiError, api, errorMessage } from '@/lib/client/api';
 import {
   getLastName,
   getPendingRequest,
+  getRecentSessions,
   rememberName,
   saveToken,
   storePendingRequest,
@@ -32,6 +34,8 @@ export function OngoingSessions() {
   const [error, setError] = useState<string | null>(null);
   const [pending, setPending] = useState<PendingJoinRequest | null>(null);
   const [outcome, setOutcome] = useState<string | null>(null);
+  // sessions this browser is already in: offer the way back instead of "Ask to join"
+  const [mine, setMine] = useState<Record<string, string>>({});
 
   const loadList = useCallback(async () => {
     try {
@@ -45,6 +49,7 @@ export function OngoingSessions() {
   useEffect(() => {
     setPending(getPendingRequest()); // a refresh keeps you in the queue
     setName(getLastName());
+    setMine(Object.fromEntries(getRecentSessions().map((r) => [r.id, r.code])));
     void loadList();
     const timer = setInterval(() => document.visibilityState === 'visible' && void loadList(), LIST_REFRESH_MS);
     // the "join with a code" form starts a request when the host approves everyone
@@ -172,7 +177,11 @@ export function OngoingSessions() {
                   </p>
                 </div>
                 <Badge tone={s.status === 'ACTIVE' ? 'green' : 'neutral'}>{s.status === 'ACTIVE' ? 'In progress' : 'Waiting to start'}</Badge>
-                {pending && pending.sessionId === s.id ? (
+                {mine[s.id] ? (
+                  <Link href={`/s/${mine[s.id]}`} className="text-sm font-semibold text-indigo-600 hover:underline">
+                    You’re in · open
+                  </Link>
+                ) : pending && pending.sessionId === s.id ? (
                   <Badge tone="indigo">Request sent</Badge>
                 ) : (
                   <Button

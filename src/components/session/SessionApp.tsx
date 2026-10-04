@@ -3,7 +3,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useCallback, useEffect, useState } from 'react';
 import { ApiError, api, errorMessage } from '@/lib/client/api';
-import { adoptTokenFromHash, clearToken, getToken, saveToken, storePendingRequest } from '@/lib/client/tokenStore';
+import { adoptTokenFromHash, clearToken, getToken, rememberSession, saveToken, storePendingRequest } from '@/lib/client/tokenStore';
 import type { SessionStateView } from '@/lib/domain/views';
 import { ChatAlert } from '@/components/chat/ChatAlert';
 import { ChatPanel } from '@/components/chat/ChatPanel';
@@ -39,6 +39,8 @@ export function SessionApp({ code }: { code: string }) {
     if (!token) return setPhase({ kind: 'join' });
     try {
       const state = await api<SessionStateView>(`/api/sessions/${code}`, { token });
+      // lets the home page offer a way back in (ended sessions are not worth returning to)
+      if (state.session.status !== 'ENDED') rememberSession({ id: state.session.id, code, name: state.session.name, displayName: state.me.displayName });
       setPhase({ kind: 'ready', token, state });
     } catch (err) {
       if (err instanceof ApiError && err.code === 'REMOVED') {

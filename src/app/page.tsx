@@ -2,6 +2,7 @@ import { CreateSessionForm } from '@/components/home/CreateSessionForm';
 import { DemoLauncher } from '@/components/home/DemoLauncher';
 import { JoinSessionForm } from '@/components/home/JoinSessionForm';
 import { OngoingSessions } from '@/components/home/OngoingSessions';
+import { YourSessions } from '@/components/home/YourSessions';
 import { ThemeToggle } from '@/components/ui/ThemeToggle';
 import { loadConfig } from '@/lib/config';
 
@@ -30,6 +31,7 @@ export default function HomePage() {
           <li className="rounded-full bg-rose-50 px-3 py-1 text-rose-700">💬 Chat</li>
         </ul>
       </header>
+      <YourSessions />
       <OngoingSessions />
       <div className="grid gap-6 md:grid-cols-2">
         <JoinSessionForm />

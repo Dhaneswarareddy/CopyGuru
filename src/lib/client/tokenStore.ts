@@ -28,6 +28,7 @@ export function saveToken(code: string, token: string, opts: { tabOnly?: boolean
 export function clearToken(code: string) {
   safe(() => sessionStorage.removeItem(key(code)), undefined);
   safe(() => localStorage.removeItem(key(code)), undefined);
+  forgetSession(code);
 }
 
 /** Demo links carry the identity as `#token=…`; adopt it for this tab only and
@@ -50,6 +51,34 @@ const REQUEST_KEY = 'vqa:joinRequest';
 export const getPendingRequest = () => safe(() => JSON.parse(sessionStorage.getItem(REQUEST_KEY) ?? 'null') as PendingJoinRequest | null, null);
 export const storePendingRequest = (r: PendingJoinRequest | null) =>
   safe(() => (r ? sessionStorage.setItem(REQUEST_KEY, JSON.stringify(r)) : sessionStorage.removeItem(REQUEST_KEY)), undefined);
+
+/** Sessions this browser has been in recently, so the home page can offer a way back. */
+export interface RecentSession {
+  /** Public id, to recognise the session in the "Happening now" list. */
+  id: string;
+  code: string;
+  name: string;
+  displayName: string;
+  at: number;
+}
+const RECENT_KEY = 'vqa:recent';
+const RECENT_MAX_AGE_MS = 24 * 60 * 60 * 1000;
+
+export function getRecentSessions(): RecentSession[] {
+  const all = safe(() => JSON.parse(localStorage.getItem(RECENT_KEY) ?? '[]') as RecentSession[], []);
+  // only sessions this browser can still get back into
+  return all.filter((r) => Date.now() - r.at < RECENT_MAX_AGE_MS && safe(() => !!localStorage.getItem(key(r.code)), false));
+}
+
+export function rememberSession(entry: Omit<RecentSession, 'at'>) {
+  const others = getRecentSessions().filter((r) => r.code !== entry.code);
+  safe(() => localStorage.setItem(RECENT_KEY, JSON.stringify([{ ...entry, at: Date.now() }, ...others].slice(0, 5))), undefined);
+}
+
+export function forgetSession(code: string) {
+  const rest = safe(() => JSON.parse(localStorage.getItem(RECENT_KEY) ?? '[]') as RecentSession[], []).filter((r) => r.code !== code);
+  safe(() => localStorage.setItem(RECENT_KEY, JSON.stringify(rest)), undefined);
+}
 
 const NAME_KEY = 'vqa:name';
 export const getLastName = () => safe(() => localStorage.getItem(NAME_KEY) ?? '', '');

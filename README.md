@@ -305,6 +305,12 @@ The home page shows **Happening now**: sessions that are running and open to req
 - Only roles with `ADMIT_PARTICIPANTS` (host, moderator, admin) see or decide requests. Other participants only
   see the new person appear once admitted.
 
+## Getting around
+
+The 🏠 button in the session header opens the home page. That does not leave the session: the home page shows
+**Your sessions** with a **Back to session** button for every session this browser is still a member of (kept for
+24 hours, and dropped when the session ends or access is lost).
+
 ## Host controls
 
 - **Remove a participant** — in the participant list (the `3/4` button in the header, or the waiting room), the
