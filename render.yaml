@@ -1,0 +1,29 @@
+# Render blueprint: one Node web service + managed Postgres (pgvector).
+# Images are stored in Postgres, so the service itself is stateless.
+# New → Blueprint → pick this repository.
+databases:
+  - name: vqa-db
+    plan: basic-256mb
+    postgresMajorVersion: "17"
+
+services:
+  - type: web
+    name: visual-qa-sessions
+    runtime: node
+    plan: standard            # 2 GB RAM; the CLIP model needs more than 512 MB
+    buildCommand: npm ci && npm run build && npm run model:download
+    startCommand: npm run start
+    healthCheckPath: /api/health
+    envVars:
+      - key: NODE_VERSION
+        value: "24"
+      - key: DATABASE_URL
+        fromDatabase:
+          name: vqa-db
+          property: connectionString
+      - key: STORAGE_DRIVER
+        value: database
+      - key: APP_SECRET
+        generateValue: true
+      - key: DEMO_MODE
+        value: "true"

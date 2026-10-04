@@ -1,0 +1,36 @@
+# Fly.io: one machine + one volume (embedded Postgres + images on /data).
+#   fly launch --copy-config --no-deploy   (pick an app name / region)
+#   fly volumes create data --size 1
+#   fly secrets set APP_SECRET=$(openssl rand -hex 32)
+#   fly deploy
+app = "visual-qa-sessions"
+primary_region = "sin"
+
+[build]
+  dockerfile = "Dockerfile"
+
+[env]
+  PORT = "3000"
+  DEMO_MODE = "true"
+
+[mounts]
+  source = "data"
+  destination = "/data"
+
+[http_service]
+  internal_port = 3000
+  force_https = true
+  auto_stop_machines = "stop"
+  auto_start_machines = true
+  min_machines_running = 0
+
+  [[http_service.checks]]
+    path = "/api/health"
+    interval = "30s"
+    timeout = "5s"
+    grace_period = "60s"
+
+[[vm]]
+  memory = "1gb"
+  cpu_kind = "shared"
+  cpus = 1
