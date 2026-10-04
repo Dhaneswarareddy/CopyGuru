@@ -450,6 +450,9 @@ npm run build && HOSTNAME_BIND=127.0.0.1 npm run start
 cloudflared tunnel --url http://127.0.0.1:3000             # prints the https URL
 ```
 
+`./site.sh` wraps exactly this on a Mac: `./site.sh start` (site + public link), `./site.sh start --local`
+(no public link), `./site.sh stop`, `./site.sh status`, `./site.sh restart` (rebuilds first).
+
 ### Anywhere else
 
 ```bash
